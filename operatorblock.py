@@ -4,30 +4,59 @@ from block import Block
 class Operatorblock(Block):
     def __init__(self) -> None:
         super().__init__()
-        self.connectionsIn:list[Operatorblock] = []
-        self.connectionsOut:list[Operatorblock] = []
-    
+        self.connectionsIn: list[Operatorblock] = []
+        self.connectionsOut: list[Operatorblock] = []
+        self.inputData: dict[Operatorblock, any] = {}
+
     def getOutConnections(self):
         return self.connectionsOut
 
-    def addOutConnections(self, connection):
-        self.connectionsOut.append(connection)
+    def addOutConnection(self, connection):
+        if connection not in self.connectionsOut:
+            self.connectionsOut.append(connection)
+            connection.addInConnection(self)
 
-    def removeOutConnections(self, connection):
-        self.connectionsOut.remove(connection)
+    def removeOutConnection(self, connection):
+        if connection in self.connectionsOut:
+            self.connectionsOut.remove(connection)
+            connection.removeInConnection(self)
 
     def getInConnections(self):
         return self.connectionsIn
 
-    def addInConnections(self, connection):
-        self.connectionsIn.append(connection)
+    def addInConnection(self, connection):
+        if connection not in self.connectionsIn:
+            self.connectionsIn.append(connection)
+            connection.addOutConnection(self)
 
-    def removeInConnections(self, connection):
-        self.connectionsIn.remove(connection)
+    def removeInConnection(self, connection):
+        if connection in self.connectionsIn:
+            self.connectionsIn.remove(connection)
+            connection.removeOutConnection(self)
 
-    def giveData():
-        pass
-    
-    def run(self, data):
+    def giveData(self, data, giver):
+        self.inputData[giver] = data
+
+    def run(self):
+        if len(self.inputData) == 0:
+            outData = False
+        else:
+            outData = list(self.inputData.values())[0]
+        self.outputData(outData)
+
+    def outputData(self, data):
         for out in self.connectionsOut:
-            out.run(data)
+            out.giveData(data, self)
+
+
+class inBlock(Operatorblock):
+    def __init__(self, name: str) -> None:
+        super().__init__()
+        self.name = name
+        self.output = False
+
+    def setData(self, data):
+        self.output = data
+
+    def run(self):
+        self.outputData(self.output)
