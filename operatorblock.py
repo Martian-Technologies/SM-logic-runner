@@ -7,6 +7,7 @@ class Operatorblock(Block):
         self.connectionsIn: list[Operatorblock] = []
         self.connectionsOut: list[Operatorblock] = []
         self.inputData: dict[Operatorblock, any] = {}
+        self.usedData: dict[Operatorblock, any] = {}
 
     def getOutConnections(self):
         return self.connectionsOut
@@ -37,11 +38,14 @@ class Operatorblock(Block):
     def giveData(self, data, giver):
         self.inputData[giver] = data
 
+    def updateDataUsed(self):
+        self.usedData = self.inputData
+
     def run(self):
-        if len(self.inputData) == 0:
+        if len(self.usedData) == 0:
             outData = False
         else:
-            outData = list(self.inputData.values())[0]
+            outData = list(self.usedData.values())[0]
         self.outputData(outData)
 
     def outputData(self, data):

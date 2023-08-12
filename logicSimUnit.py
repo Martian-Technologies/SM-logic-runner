@@ -38,6 +38,8 @@ class LogicSimUnit:
     def stepSim(self):
         for block in self.operatorblocks:
             block.run()
+        for block in self.operatorblocks:
+            block.updateDataUsed()
 
 
 class LogicSimInBlock(Operatorblock):
