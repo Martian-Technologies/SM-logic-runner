@@ -1,25 +1,17 @@
+from circuitMaker import CircuitMaker
 from logicBlock import LogicBlock
 from logicSimUnit import LogicSimUnit
 from operatorblock import inBlock
+from smlFileReader import SmlFileReader
+from blockList import blockList
 
 
 unit = LogicSimUnit()
 
-input1:inBlock = unit.addInput('1', LogicBlock(0))
-input2:inBlock = unit.addBlock(inBlock('2'))
-
-output1 = unit.addOutput('1')
-output1.doPrint = True
-
-andGate = unit.addBlock(LogicBlock(2))
-
-#input1.setData(True)
-input2.setData(True)
-
-input1.addOutConnection(andGate)
-input2.addOutConnection(andGate)
-output1.addInConnection(andGate)
-output1.addOutConnection(input1)
+connectionData = SmlFileReader.readSmlFile()
+blocks, blockNames = CircuitMaker.makeCircuit(connectionData, blockList)
+for block in zip(blocks, blockNames):
+    unit.addBlock(block[1], block[0])
 
 unit.stepSim()
 unit.stepSim()

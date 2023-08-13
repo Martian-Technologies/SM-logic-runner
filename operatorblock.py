@@ -1,5 +1,5 @@
 from block import Block
-
+from copy import deepcopy
 
 class Operatorblock(Block):
     def __init__(self) -> None:
@@ -8,6 +8,7 @@ class Operatorblock(Block):
         self.connectionsOut: list[Operatorblock] = []
         self.inputData: dict[Operatorblock, any] = {}
         self.usedData: dict[Operatorblock, any] = {}
+        self.name: str
 
     def getOutConnections(self):
         return self.connectionsOut
@@ -39,7 +40,7 @@ class Operatorblock(Block):
         self.inputData[giver] = data
 
     def updateDataUsed(self):
-        self.usedData = self.inputData
+        self.usedData = deepcopy(self.inputData)
 
     def run(self):
         if len(self.usedData) == 0:
@@ -51,6 +52,7 @@ class Operatorblock(Block):
     def outputData(self, data):
         for out in self.connectionsOut:
             out.giveData(data, self)
+    
 
 
 class inBlock(Operatorblock):

@@ -2,7 +2,7 @@ from operatorblock import Operatorblock
 
 
 class LogicBlock(Operatorblock):
-    def __init__(self, type: int) -> None:
+    def __init__(self, type: int = None) -> None:
         '''
             0: 'and'\n
             1: 'or'\n
@@ -12,6 +12,8 @@ class LogicBlock(Operatorblock):
             5: 'xnor'
         '''
         super().__init__()
+        if type == None:
+            type = 0
         self.type = None
         self.setType(type)
 
@@ -63,9 +65,9 @@ class LogicBlock(Operatorblock):
             self.runOperation = operation
 
     def run(self):
-        if len(self.inputData) == 0:
+        if len(self.usedData) == 0:
             outData = False
         else:
-            outData = self.runOperation(list(self.inputData.values()))
-
+            outData = self.runOperation(list(self.usedData.values()))
+        print(outData, self.name, list(self.usedData.values()))
         self.outputData(outData)
