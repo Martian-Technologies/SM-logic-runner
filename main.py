@@ -13,12 +13,6 @@ blocks, blockNames = CircuitMaker.makeCircuit(connectionData, blockList)
 for block in zip(blocks, blockNames):
     unit.addBlock(block[1], block[0])
 
-unit.stepSim()
-unit.stepSim()
-unit.stepSim()
-unit.stepSim()
-unit.stepSim()
-unit.stepSim()
-unit.stepSim()
-unit.stepSim()
-unit.stepSim()
+while 1:
+    unit.stepSim()
+    input()

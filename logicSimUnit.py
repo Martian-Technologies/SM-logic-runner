@@ -12,7 +12,7 @@ class LogicSimUnit:
         self.operatorblocks.append(block)
         return block
 
-    def addInput(self, name, typeOverride:Operatorblock = None):
+    def addInput(self, name, typeOverride: Operatorblock = None):
         if typeOverride == None:
             block: LogicSimInBlock = self.addBlock(LogicSimInBlock(name))
         else:
@@ -21,7 +21,7 @@ class LogicSimUnit:
         self.inBlocks.append(block)
         return block
 
-    def addOutput(self, name, typeOverride:Operatorblock = None):
+    def addOutput(self, name, typeOverride: Operatorblock = None):
         if typeOverride == None:
             block: LogicSimOutBlock = self.addBlock(LogicSimOutBlock(name))
         else:
@@ -41,7 +41,7 @@ class LogicSimUnit:
                 return block
 
     def stepSim(self):
-        print('--- step sim ---')
+        print("--- step sim ---")
         for block in self.operatorblocks:
             block.run()
         for block in self.operatorblocks:
@@ -52,6 +52,7 @@ class LogicSimInBlock(Operatorblock):
     def __init__(self, name: str) -> None:
         super().__init__()
         self.name = name
+
 
 class LogicSimOutBlock(Operatorblock):
     def __init__(self, name: str) -> None:
