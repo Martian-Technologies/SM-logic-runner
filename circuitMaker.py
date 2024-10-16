@@ -3,18 +3,23 @@ from operatorblock import Operatorblock
 
 class CircuitMaker:
     @staticmethod
-    def makeCircuit(data: dict[str, list[str]], blockClasses: dict[str, type[Operatorblock]]):
+    def makeCircuit(data: list[tuple[list[str]]], blockClasses: dict[str, type[Operatorblock]]):
         print(data)
         blockList = CircuitMaker.createAllBLockClasses(data, blockClasses)
-        return CircuitMaker.connectBlocks(data, blockList), list(data.keys())
+        CircuitMaker.connectBlocks(data, blockList), list(data.keys())
+        return blockList.values()
 
     @staticmethod
     def createAllBLockClasses(
-        data: dict[str, list[str]], blockClasses: dict[str, type[Operatorblock]]
+        data: list[tuple[list[str]]], blockClasses: dict[str, type[Operatorblock]]
     ):
         blockList: dict[str, Operatorblock] = {}
-        for block in data.keys():
-            blockList[block] = CircuitMaker.getBlockType(block, blockClasses)()
+        for blocksPair in data:
+            for blocks in blocksPair:
+                for block in blocks:
+                    if block not in blockList.keys():
+                        blockList[block] = CircuitMaker.getBlockType(block, blockClasses)()
+                        blockList[block].name = block
         return blockList
 
     @staticmethod
@@ -30,10 +35,14 @@ class CircuitMaker:
         return blockClasses[bestGuess]
 
     @staticmethod
-    def connectBlocks(data: dict[str, list[str]], blockList: dict[str, Operatorblock]):
-        blocks = []
-        for blockName in data.keys():
-            for connectToBlockName in data[blockName]:
-                blockList[blockName].addInConnection(blockList[connectToBlockName])
-            blocks.append(blockList[blockName])
-        return blocks
+    def connectBlocks(data: list[tuple[list[str]]], blockList: dict[str, Operatorblock]):
+        for blocksPair in data:
+            if len(blocksPair[0]) == 1:
+                for connectToBlockName in blocksPair[1]:
+                    blockList[blocksPair[0]].addInConnection(blockList[connectToBlockName])
+            elif len(blocksPair[1]) == 1:
+                for blockName in blocksPair[1]:
+                    blockList[blockName].addInConnection(blockList[blocksPair[1]])
+            elif len(blocksPair[0]) == len(blocksPair[1]):
+                for i in range(len(blocksPair[0])):
+                    blockList[blocksPair[0][i]].addInConnection(blockList[blocksPair[1][i]])

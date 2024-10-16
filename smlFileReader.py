@@ -17,10 +17,7 @@ class SmlFileReader:
         fileText = open(path).read()
         fileText = SmlFileReader.removeComments(fileText)
         data, blocksNames = SmlFileReader.getConnections(fileText, blockTypes)
-        for name in blocksNames:
-            if name not in data.keys():
-                data[name] = []
-        return data
+        return data, blocksNames
 
     @staticmethod
     def removeComments(fileText: str):
@@ -45,7 +42,7 @@ class SmlFileReader:
 
     @staticmethod
     def getConnections(fileText: str, blockTypes: list[str]):
-        blockInputs: dict[str, list[str]] = {}
+        blockInputs: list[tuple[list[str]]] = []
         string = ""
         buffer = None
         operator = None
@@ -59,53 +56,86 @@ class SmlFileReader:
                     blockInputs, buffer, string = SmlFileReader.addBlockToBlockInputs(
                         blockInputs, blockTypes, operator, buffer, string
                     )
-                    blocksNames.append(string)
-                    blocksNames.append(buffer)
+                    if type(string) == list:
+                        blocksNames.extend(string)
+                    else:
+                        blocksNames.append(string)
+                    if type(buffer) == list:
+                        blocksNames.extend(buffer)
+                    else:
+                        blocksNames.append(buffer)
                 buffer = string
                 string = ""
                 operator = char
+            elif char == ",":
+                if string == "":
+                    raise Exception("can not start a list of blocks with ''")
+
+                if type(string) == list:
+                    string.append(string)
+                else:
+                    string = [string, char]
             elif char == "\n":
                 if buffer != None:
                     blockInputs, buffer, string = SmlFileReader.addBlockToBlockInputs(
                         blockInputs, blockTypes, operator, buffer, string
                     )
-                    blocksNames.append(string)
-                    blocksNames.append(buffer)
+                    blocksNames.extend(string)
+                    blocksNames.extend(buffer)
                 buffer = None
                 string = ""
                 operator = None
             else:
-                string += char
+                if type(string) == list:
+                    string[-1] += char
+                else:
+                    string += char
         if buffer != None:
             blockInputs, buffer, string = SmlFileReader.addBlockToBlockInputs(
                 blockInputs, blockTypes, operator, buffer, string
             )
-            blocksNames.append(string)
-            blocksNames.append(buffer)
+            blocksNames.extend(string)
+            blocksNames.extend(buffer)
         return blockInputs, blocksNames
 
+    @staticmethod
     def addBlockToBlockInputs(
-        blockInputs: dict[str, list[str]], blockTypes, operator, buffer, string
+        blockInputs: list[tuple[list[str], list[str]]],
+        blockTypes: list[str],
+        operator: str,
+        buffer: str | list[str],
+        string: str | list[str],
     ):
-        if buffer in blockTypes:
-            buffer = (
-                buffer + str(SmlFileReader.blockNameIncrement) + "r" + str(rng.randint(0, 99999))
-            )
-            SmlFileReader.blockNameIncrement += 1
-        if string in blockTypes:
-            string = (
-                string + str(SmlFileReader.blockNameIncrement) + "r" + str(rng.randint(0, 99999))
-            )
-            SmlFileReader.blockNameIncrement += 1
+        if type(buffer) == list:
+            for i in range(len(buffer)):
+                if buffer[i] in blockTypes:
+                    buffer[i] = SmlFileReader.makeRandName(buffer[i])
+        elif buffer in blockTypes:
+            buffer = SmlFileReader.makeRandName(buffer)
 
-        if operator == "<":
-            if buffer in blockInputs.keys():
-                blockInputs[buffer].append(string)
-            else:
-                blockInputs[buffer] = [string]
+        if type(string) == list:
+            for i in range(len(string)):
+                if string[i] in blockTypes:
+                    string[i] = SmlFileReader.makeRandName(string[i])
+        elif string in blockTypes:
+            string = SmlFileReader.makeRandName(string)
+
+        if type(buffer) == str:
+            buffer = [buffer]
+        if type(string) == str:
+            string = [string]
+
+        if operator != "<":
+            valueIn = buffer
+            valueOut = string
         else:
-            if string in blockInputs.keys():
-                blockInputs[string].append(buffer)
-            else:
-                blockInputs[string] = [buffer]
+            valueIn = string
+            valueOut = buffer
+        blockInputs.append((valueIn, valueOut))
         return blockInputs, buffer, string
+
+    @staticmethod
+    def makeRandName(string: str):
+        string = string + str(SmlFileReader.blockNameIncrement) + "r" + str(rng.randint(0, 99999))
+        SmlFileReader.blockNameIncrement += 1
+        return string

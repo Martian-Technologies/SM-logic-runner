@@ -24,6 +24,10 @@ class Operatorblock(Block):
             self.connectionsOut.remove(connection)
             connection.removeInConnection(self)
 
+    def clearOutputs(self):
+        for connection in self.connectionsOut:
+            self.removeOutConnection(connection)
+
     def getInConnections(self):
         return self.connectionsIn
 
@@ -36,6 +40,14 @@ class Operatorblock(Block):
         if connection in self.connectionsIn:
             self.connectionsIn.remove(connection)
             connection.removeOutConnection(self)
+
+    def clearInputs(self):
+        for connection in self.connectionsIn:
+            self.removeInConnection(connection)
+
+    def clearConnections(self):
+        self.clearInputs()
+        self.clearOutputs()
 
     def giveData(self, data, giver):
         self.inputData[giver] = data

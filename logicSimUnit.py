@@ -12,6 +12,13 @@ class LogicSimUnit:
         self.operatorblocks.append(block)
         return block
 
+    def clearBlocks(self):
+        for block in self.operatorblocks:
+            block.clearConnections()
+        self.operatorblocks = []
+        self.inBlocks = []
+        self.outBlocks = []
+
     def addInput(self, name, typeOverride: Operatorblock = None):
         if typeOverride == None:
             block: LogicSimInBlock = self.addBlock(LogicSimInBlock(name))
@@ -40,10 +47,11 @@ class LogicSimUnit:
             if block.name == name:
                 return block
 
-    def stepSim(self):
-        print("--- step sim ---")
+    def run(self):
         for block in self.operatorblocks:
             block.run()
+
+    def updateDataUsed(self):
         for block in self.operatorblocks:
             block.updateDataUsed()
 

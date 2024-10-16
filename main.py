@@ -14,5 +14,6 @@ for block in zip(blocks, blockNames):
     unit.addBlock(block[1], block[0])
 
 while 1:
-    unit.stepSim()
+    unit.run()
+    unit.updateDataUsed()
     input()

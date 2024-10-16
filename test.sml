@@ -1,1 +1,1 @@
-and1 < or < nor < and1 > xor1 < xor1
+and1 < nor < and < and1
